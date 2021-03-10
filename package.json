@@ -1,0 +1,30 @@
+{
+  "name": "node-postgres",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "starts": "node-dev app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TriiCksTeR/node-postgres.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TriiCksTeR/node-postgres/issues"
+  },
+  "homepage": "https://github.com/TriiCksTeR/node-postgres#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-dev": "^6.4.0",
+    "pg": "^8.5.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.5.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.2.0"
+  }
+}
