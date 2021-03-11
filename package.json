@@ -19,6 +19,7 @@
   "homepage": "https://github.com/TriiCksTeR/node-postgres#readme",
   "dependencies": {
     "@types/sequelize": "^4.28.9",
+    "bcrypt": "^5.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "node-dev": "^6.4.0",
@@ -29,6 +30,7 @@
     "yup": "^0.32.9"
   },
   "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
     "@types/express": "^4.17.11",
     "sequelize-cli": "^6.2.0",
     "ts-node-dev": "^1.1.6"

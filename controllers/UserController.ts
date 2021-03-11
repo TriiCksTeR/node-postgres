@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/user'
 import yup from 'yup';
+import bcrypt from 'bcrypt'
 
 class UserController {
     async create(request: Request, response: Response) {
@@ -22,23 +23,40 @@ class UserController {
             return response.status(400).json({ err })
         }
 
-        const user_db = await User.findByPk(request.params.email)
+        const user_db = await User.findOne(request.body.email)
         if (user_db) {
             return response.status(400).json({
-                error: { "User Email Already Exists"}
-            })
+                error: "User Email Already Exists"
+            });
         } else {
-            await User.create(request.body);
+            const pass = request.body.password;
+            const saltRounds = '10'
+            const hash = await bcrypt.hash(pass, saltRounds);
+
+            const newUser = await User.create([
+                { firstName: request.body.firstName },
+                { lastName: request.body.lastName },
+                { email: request.body.email },
+                { password: hash },
+            ]);
+            return response.status(201).json(newUser);
         }
-        return response.status(201).json();
     }
 
 
     async update(request: Request, response: Response) {
-        //validation here
+        const schema = yup.object().shape({
+            id: yup.string().required("id is Required")
+        })
+        try {
+            await schema.isValid(request.body, { abortEarly: false })
+        } catch (error) {
+            const err = error.errors;
+            return response.status(400).json({ err })
+        }
 
 
-        const user_db = await User.findByPk(request.params.id)
+        const user_db = await User.findByPk(request.body.id)
         if (!user_db) {
             return response.status(400).json({ error: 'User does not Exists' });
         } else {
@@ -59,10 +77,18 @@ class UserController {
 
 
     async findOne(request: Request, response: Response) {
-        //validation here
+        const schema = yup.object().shape({
+            id: yup.string().required("id is Required")
+        })
+        try {
+            await schema.isValid(request.body, { abortEarly: false })
+        } catch (error) {
+            const err = error.errors;
+            return response.status(400).json({ err })
+        }
 
 
-        const user_db = await User.findByPk(request.params.id);
+        const user_db = await User.findByPk(request.body.id);
         if (!user_db) {
             return response.status(400).json({ error: "User does not Exists" })
         } else {
@@ -72,10 +98,18 @@ class UserController {
 
 
     async delete(request: Request, response: Response) {
-        //validation here
+        const schema = yup.object().shape({
+            id: yup.string().required("id is Required")
+        })
+        try {
+            await schema.isValid(request.body, { abortEarly: false })
+        } catch (error) {
+            const err = error.errors;
+            return response.status(400).json({ err })
+        }
 
 
-        const user_db = await User.findByPk(request.params.id);
+        const user_db = await User.findByPk(request.body.id);
         if (!user_db) {
             return response.status(400).json({ error: "User does not Exists" })
         } else {
