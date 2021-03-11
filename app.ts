@@ -1,14 +1,13 @@
 import express from 'express';
+import { router } from "./routes"
 const app = express();
-const port = 3333
+const port: Number = 3333
 //importar as rotas
+app.use(express.json())
+app.use(router)
 
-app.get('/', (req, res) => {
-    res.send('Hello Word!');
-})
-
-app.listen(port, (err) => {
-    return console.error(err)
+app.listen(port, () => {
+    console.log(`Servidor Rodando na porta ${port}`)
 })
 
 /**
@@ -19,4 +18,7 @@ app.listen(port, (err) => {
  * } e rodar {
  * psql db_teste root
  * }
+ *
+ *
+ * docker run --name database -e POSTGRES_PASSWORD=docker -p 5432:5432 -d postgres
  */
