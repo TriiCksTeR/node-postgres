@@ -33,12 +33,12 @@ class UserController {
             const saltRounds = '10'
             const hash = await bcrypt.hash(pass, saltRounds);
 
-            const newUser = await User.create([
-                { firstName: request.body.firstName },
-                { lastName: request.body.lastName },
-                { email: request.body.email },
-                { password: hash },
-            ]);
+            const newUser = await User.create({
+                firstName: request.body.firstName,
+                lastName: request.body.lastName,
+                email: request.body.email,
+                password: hash
+            });
             return response.status(201).json(newUser);
         }
     }
