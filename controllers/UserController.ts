@@ -74,6 +74,37 @@ class UserController {
             return response.status(201).json(db_users);
         }
     }
+    async userAuthenticate(request: Request, response: Response) {
+
+
+        const schema = yup.object().shape({
+            email: yup.string().email().required("Email is Required"),
+            password: yup.string().required("Password is Required")
+                .matches(RegExp("(.*[a-z].*)"), "Lowercase")
+                .matches(RegExp("(.*[A-Z].*)"), "Uppercase")
+                .matches(RegExp("(.*\\d.*)"), "Number")
+                .matches(RegExp("/[a-zA-Z0-9]\z/"), "Without Special Characters")
+            // '[!@#$%^&*(),.?":{}|<>]'), "Special" <<habilite special characters
+        })
+        try {
+            await schema.isValid(request.body, { abortEarly: false })
+        } catch (error) {
+            const err = error.errors;
+            return response.status(400).json({ err })
+        }
+
+
+        const password = await User.findOne({
+            attributes: ['password'], where: { email: request.body.email }
+        });
+        if (!password) {
+            return response.status(400).json({ error: "Email Incorrectly or Does Not Exists" });
+        } else {
+            bcrypt.compare(request.body.password, String(password))
+        };
+        return response.status(201).json();
+    }
+
 
 
     async findOne(request: Request, response: Response) {
@@ -129,6 +160,7 @@ class UserController {
             }))
         }
         return response.status(201).json(db_users)
+
     }
 }
 
