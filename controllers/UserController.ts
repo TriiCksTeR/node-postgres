@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import User from '../models/user'
 import yup from 'yup';
 import bcrypt from 'bcrypt'
-
+import jwt from "jsonwebtoken"
 class UserController {
     async create(request: Request, response: Response) {
         const schema = yup.object().shape({
@@ -97,12 +97,23 @@ class UserController {
         const password = await User.findOne({
             attributes: ['password'], where: { email: request.body.email }
         });
+        const payloadId = await User.findOne({ attributes: ['id'], where: { email: request.body.email } });
+        const userData = await User.findOne({ where: { email: request.body.email } });
+
         if (!password) {
             return response.status(400).json({ error: "Email Incorrectly or Does Not Exists" });
         } else {
-            bcrypt.compare(request.body.password, String(password))
+
+            const condition = await bcrypt.compare(request.body.password, String(password))
+
+            if (!condition) {
+                return response.status(400).json({ error: "password wrong" });
+            } else {
+                const token = jwt.sign({ payloadId }, 'hash ', { expiresIn: '1h' })
+                return response.status(201).json({ userData, token });
+            }
+
         };
-        return response.status(201).json();
     }
 
 
