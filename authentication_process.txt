@@ -1,0 +1,25 @@
+//LIBS
+jsonwebtoken e bcrypt
+//ROUTER
+mandei um request com email e senha para o backend
+//CONTROLLER
+tu vai ir no banco pesquisar o usuario pelo email informado
+se n existir nenhum usuario com este email tu ja retorna um 400
+
+##adicional colocar 3 tentativas de login a cada dia e enviar email caso o mesmo falhe as 3 vezes
+
+e se existir tu vai pegar o hash(senha ) dele no banco
+vai desencriptar ela e comparar com a que eu acabei de mandar no request
+
+se bateu tu vai gerar um token com data de expiracao hora min seila
+vai adicionar meu id no payload desse token e vai me retornar ele
+dentro de um objeto com meus dados
+
+EX:
+{name: 'Matheus', email: 'matheusb@gmail.com', token: 'asdfuasdiufaskdfhaksdhgfajsdhfgasdf'}
+
+em rotas autenticadas eu vou mandar esse token no header da request
+
+o seu middleware vai pegar ele ver se n expirou
+
+caso n tenha expirado ele deixa eu passar

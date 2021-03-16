@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response, text } from 'express';
 import User from '../models/user'
-import yup from 'yup';
+import * as yup from 'yup';
 import bcrypt from 'bcrypt'
 import jwt from "jsonwebtoken"
+const key: string = 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTYxNTg1NjU3OSwiaWF0IjoxNjE1ODU2NTc5fQ.BczrTQ26wM4yWplQ14H2VYDUz1Bh8AEEALCnmwmCGjU'
 class UserController {
     async create(request: Request, response: Response) {
         const schema = yup.object().shape({
@@ -23,15 +24,16 @@ class UserController {
             return response.status(400).json({ err })
         }
 
-        const user_db = await User.findOne(request.body.email)
+        const user_db = await User.findOne({ where: { email: request.body.email } })
         if (user_db) {
             return response.status(400).json({
                 error: "User Email Already Exists"
             });
         } else {
             const pass = request.body.password;
-            const saltRounds = '10'
+            const saltRounds = 10
             const hash = await bcrypt.hash(pass, saltRounds);
+
 
             const newUser = await User.create({
                 firstName: request.body.firstName,
@@ -74,9 +76,8 @@ class UserController {
             return response.status(201).json(db_users);
         }
     }
+
     async userAuthenticate(request: Request, response: Response) {
-
-
         const schema = yup.object().shape({
             email: yup.string().email().required("Email is Required"),
             password: yup.string().required("Password is Required")
@@ -94,28 +95,29 @@ class UserController {
         }
 
 
-        const password = await User.findOne({
+        const password: any = await User.findOne({
             attributes: ['password'], where: { email: request.body.email }
         });
+
         const payloadId = await User.findOne({ attributes: ['id'], where: { email: request.body.email } });
+
         const userData = await User.findOne({ where: { email: request.body.email } });
 
         if (!password) {
             return response.status(400).json({ error: "Email Incorrectly or Does Not Exists" });
         } else {
+            const [pass] = Object.values(password.toJSON())
 
-            const condition = await bcrypt.compare(request.body.password, String(password))
-
+            const condition = await bcrypt.compare(request.body.password, String(pass))
             if (!condition) {
                 return response.status(400).json({ error: "password wrong" });
             } else {
-                const token = jwt.sign({ payloadId }, 'hash ', { expiresIn: '1h' })
+
+                const token = jwt.sign({ payloadId }, key, { expiresIn: '1h' })
                 return response.status(201).json({ userData, token });
             }
-
         };
     }
-
 
 
     async findOne(request: Request, response: Response) {
@@ -128,13 +130,19 @@ class UserController {
             const err = error.errors;
             return response.status(400).json({ err })
         }
-
-
         const user_db = await User.findByPk(request.body.id);
+
+
         if (!user_db) {
             return response.status(400).json({ error: "User does not Exists" })
         } else {
-            return response.status(201).json(user_db);
+            jwt.verify(request.body.token, key, () => {
+                try {
+                    return response.status(201).json(user_db);
+                } catch (error) {
+                    return response.status(400).json({ error: "Invalid Token" })
+                }
+            })
         }
     }
 
